@@ -17,8 +17,11 @@ public class Unit: MonoBehaviour {
     Coroutine followPathCR;
     private void Start()
     {
-        StartCoroutine(UpdatePath());
+        //StartCoroutine(UpdatePath());
+      
     }
+
+
     public void OnPathFound(Vector3[] waypoints, bool pathSuccessful)
     {
         if(pathSuccessful)
