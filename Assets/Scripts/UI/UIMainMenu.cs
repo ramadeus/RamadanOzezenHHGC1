@@ -12,12 +12,14 @@ public class UIMainMenu: MonoBehaviour {
     private void OnEnable()
     {
         EventsManager.OnReadyToJoin += ReadyToJoin;
+        AudioManager.InitializeButtonClickSounds(gameObject);
     }
 
 
     private void OnDisable()
     {
         EventsManager.OnReadyToJoin -= ReadyToJoin;
+
     }
     private void ReadyToJoin()
     {
@@ -32,12 +34,10 @@ public class UIMainMenu: MonoBehaviour {
     }
     public void JoinRoom()
     {
-        print("join");
         EventsManager.OnJoinRoomRequested?.Invoke();
     }
     public void CreateRoom()
     {
-        print("create");
         EventsManager.OnCreateRoomRequested?.Invoke();
     }
 }

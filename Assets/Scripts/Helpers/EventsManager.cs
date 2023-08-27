@@ -9,5 +9,9 @@ public static class EventsManager
 
     public static Action OnCreateRoomRequested;
     public static Action OnJoinRoomRequested;
+    public static Action<bool> OnCharSelectionSuccess;
+    public static Action OnCharSelectionCheck;
     public static Action OnReadyToJoin;
+    public static Action<int> OnCollectedCollectible;
+    public static Action OnGameFinished;
 }

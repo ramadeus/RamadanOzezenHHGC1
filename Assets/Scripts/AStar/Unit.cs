@@ -1,62 +1,75 @@
+using Photon.Pun;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Unit: MonoBehaviour {
     // ıı
     const float minPathUpdateTime = .2f;
     const float pathUpdateMoveThreshold = .5f;
-    public Transform target;
+    public Vector3 target;
     public float speed = 20;
     public float turnSpeed = 3;
     public float turnDst = 5;
     public float stoppingDst = 10;
+    Animator anim;
+    [SerializeField] LayerMask collectibleLayerMask;
     Path path;
     //Vector3[] path;
     //int targetIndex;
     Coroutine followPathCR;
+    Coroutine updatePathCR;
+    bool isThereCollectible = false;
     private void Start()
     {
-        //StartCoroutine(UpdatePath());
-      
+        anim = GetComponent<Animator>();
     }
+    public void GoToTarget(Vector3 _target,bool _isThereCollectible)
+    {
+        isThereCollectible = _isThereCollectible;
+        target = _target;
+        if(updatePathCR != null)
+        {
+            StopCoroutine(updatePathCR);
+        }
+        updatePathCR = StartCoroutine(UpdatePath());
 
-
+    } 
     public void OnPathFound(Vector3[] waypoints, bool pathSuccessful)
     {
         if(pathSuccessful)
         {
-            path = new Path(waypoints, transform.position, turnDst,stoppingDst);
+            path = new Path(waypoints, transform.position, turnDst, stoppingDst);
             if(followPathCR != null)
             {
 
                 StopCoroutine(followPathCR);
             }
+
             followPathCR = StartCoroutine(FollowPath());
         }
     }
 
     IEnumerator UpdatePath()
     {
-        if(Time.timeSinceLevelLoad < .3f)
-        {
-            yield return new WaitForSeconds(.3f);
-        }
-        PathRequestManager.RequestPath(new PathRequest(   transform.position, target.position, OnPathFound));
+
+        PathRequestManager.RequestPath(new PathRequest(transform.position, target, OnPathFound));
+        anim.SetBool("Running", true);
         float sqrMoveThreshold = pathUpdateMoveThreshold * pathUpdateMoveThreshold;
-        Vector3 targetPosOld = target.position;
+        Vector3 targetPosOld = target;
         while(true)
         {
             yield return new WaitForSeconds(minPathUpdateTime);
-            if((target.position - targetPosOld).sqrMagnitude > sqrMoveThreshold)
+            if((target - targetPosOld).sqrMagnitude > sqrMoveThreshold)
             {
-                PathRequestManager.RequestPath(new PathRequest(transform.position, target.position, OnPathFound));
-                targetPosOld = target.position;
+                PathRequestManager.RequestPath(new PathRequest(transform.position, target, OnPathFound));
+                targetPosOld = target;
             }
 
         }
-    }
-
+    } 
     IEnumerator FollowPath()
     {
         bool followingPath = true;
@@ -72,6 +85,13 @@ public class Unit: MonoBehaviour {
                 if(pathIndex == path.finishLineIndex)
                 {
                     followingPath = false;
+        anim.SetBool("Running", false);
+                    if(isThereCollectible)
+                    {
+                        CollectCollectible();
+                    }
+
+
                     break;
                 } else
                 {
@@ -80,10 +100,10 @@ public class Unit: MonoBehaviour {
             }
             if(followingPath)
             {
-                if(pathIndex>= path.slowDownIndex&& stoppingDst>0)
+                if(pathIndex >= path.slowDownIndex && stoppingDst > 0)
                 {
-                speedPercent = Mathf.Clamp01(path.turnBoundaries[path.finishLineIndex].DistanceFromPoint(pos2D)/ stoppingDst);
-                    if(speedPercent<0.01f)
+                    speedPercent = Mathf.Clamp01(path.turnBoundaries[path.finishLineIndex].DistanceFromPoint(pos2D) / stoppingDst);
+                    if(speedPercent < 0.01f)
                     {
                         followingPath = false;
                     }
@@ -95,25 +115,18 @@ public class Unit: MonoBehaviour {
 
             yield return null;
         }
-    }
-    //IEnumerator FollowPath()
-    //{
-    //    Vector3 currentWaypoint = path[0];
-    //    while(true)
-    //    {
-    //        if(transform.position == currentWaypoint)
-    //        {
-    //            targetIndex++;
-    //            if(targetIndex >= path.Length)
-    //            {
-    //                yield break;
-    //            }
-    //            currentWaypoint = path[targetIndex];
-    //        }
-    //        transform.position = Vector3.MoveTowards(transform.position, currentWaypoint, speed * Time.deltaTime);
-    //        yield return null;
-    //    }
-    //}
+    } 
+    private void CollectCollectible()
+    {
+        Collider[] colliders = Physics.OverlapSphere(transform.position, 1, collectibleLayerMask);
+        for(int i = 0; i < colliders.Length; i++)
+        {
+            //if(colliders[i].TryGetComponent(out ICollectible collectible))
+            //{
+            colliders[i].GetComponent<PhotonView>().RPC("Collect", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber);
+            //}
+        }
+    } 
     public void OnDrawGizmos()
     {
         if(path != null)

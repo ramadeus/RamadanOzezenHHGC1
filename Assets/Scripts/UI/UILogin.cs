@@ -16,7 +16,8 @@ public class UILogin : MonoBehaviour
         if(PlayerPrefs.HasKey("nickname"))
         {
             inputField.text = PlayerPrefs.GetString("nickname");
-        } 
+        }
+        AudioManager.InitializeButtonClickSounds(gameObject);
     }
     public void SaveNickname()
     {

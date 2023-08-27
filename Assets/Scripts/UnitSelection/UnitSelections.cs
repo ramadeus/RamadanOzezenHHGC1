@@ -26,6 +26,7 @@ public class UnitSelections : MonoBehaviour
         DeselectAll();
         unitsSelected.Add(unitToAdd);
         unitToAdd.ActivateSelectionVisual(true);
+        unitToAdd.GetComponent<UnitMovement>().enabled = true;
     }
     public void ShiftClickSelect(ClickableUnit unitToAdd)
     {
@@ -33,9 +34,11 @@ public class UnitSelections : MonoBehaviour
         {
             unitsSelected.Add(unitToAdd);
         unitToAdd.ActivateSelectionVisual(true);
+        unitToAdd.GetComponent<UnitMovement>().enabled = true;
         } else
         {
         unitToAdd.ActivateSelectionVisual(false);
+        unitToAdd.GetComponent<UnitMovement>().enabled = false;
             unitsSelected.Remove(unitToAdd);
         }
     }
@@ -44,6 +47,7 @@ public class UnitSelections : MonoBehaviour
         if(!unitsSelected.Contains(unitToAdd))
         {
             unitsSelected.Add(unitToAdd);
+        unitToAdd.GetComponent<UnitMovement>().enabled = true;
             unitToAdd.ActivateSelectionVisual(true);
         }
     }
@@ -52,6 +56,8 @@ public class UnitSelections : MonoBehaviour
         for(int i = 0; i < unitsSelected.Count; i++)
         {
             unitsSelected[i].ActivateSelectionVisual(false);
+            unitsSelected[i].GetComponent<UnitMovement>().enabled = false;
+
         }
         unitsSelected.Clear();
     }

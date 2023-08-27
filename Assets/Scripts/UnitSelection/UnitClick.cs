@@ -1,3 +1,4 @@
+using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -22,6 +23,10 @@ public class UnitClick: MonoBehaviour {
 
             if(Physics.Raycast(ray, out hit, Mathf.Infinity, clickable))
             {
+                if(!hit.collider.GetComponent<PhotonView>().IsMine)
+                {
+                    return;
+                }
                 if(Input.GetKey(KeyCode.LeftShift))
                 {
                     UnitSelections.Instance.ShiftClickSelect(hit.collider.GetComponent<ClickableUnit>());
@@ -45,10 +50,12 @@ public class UnitClick: MonoBehaviour {
 
             if(Physics.Raycast(ray, out hit, Mathf.Infinity, ground))
             {
-                //go go go
-                groundMarker.transform.position = hit.point;
-                groundMarker.SetActive(false);
-                groundMarker.SetActive(true);
+                if(!hit.collider.TryGetComponent(out ICollectible collectible))
+                {
+                    groundMarker.transform.position = hit.point;
+                    groundMarker.SetActive(false);
+                    groundMarker.SetActive(true);
+                }
 
             }
         }

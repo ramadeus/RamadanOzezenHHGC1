@@ -1,3 +1,4 @@
+using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -88,6 +89,10 @@ public class UnitDrag : MonoBehaviour
         {
             if(selectionBox.Contains(myCam.WorldToScreenPoint(unit.transform.position)))
             {
+                if(!unit.GetComponent<PhotonView>().IsMine)
+                {
+                    return;
+                }
                 UnitSelections.Instance.DragSelect(unit);
             }
         }

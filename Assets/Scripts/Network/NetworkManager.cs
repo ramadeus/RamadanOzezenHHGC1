@@ -3,50 +3,43 @@ using Photon.Realtime;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class NetworkManager : MonoBehaviourPunCallbacks
-{
+public class NetworkManager: MonoBehaviourPunCallbacks {
     // ıı
-    [SerializeField] ScriptableObjectClientInfo localClientInfo;
-
-    //private void OnEnable()
-    //{
-    //    EventsManager.OnCreateRoom += CreateRoomAndJoin;
-    //    EventsManager.OnJoinRoom += JoinRoom;
-    //    print("onenable");
-    //}
-    //private void OnDisable()
-    //{
-    //    EventsManager.OnCreateRoom -= CreateRoomAndJoin;
-    //    EventsManager.OnJoinRoom -= JoinRoom;
-    //    print("ondisable");
-    //}
     public static NetworkManager instance;
+    [SerializeField] ScriptableObjectClientInfo localClientInfo;
     private void Awake()
     {
+        if(instance == null)
+        {
         instance = this;
+        } else
+        {
+            Destroy(gameObject);
+        }
         EventsManager.OnCreateRoomRequested += CreateRoomAndJoin;
-            EventsManager.OnJoinRoomRequested += JoinRoom; 
+        EventsManager.OnJoinRoomRequested += JoinRoom;
     }
     private void OnDestroy()
     {
         EventsManager.OnCreateRoomRequested -= CreateRoomAndJoin;
-            EventsManager.OnJoinRoomRequested -= JoinRoom; 
+        EventsManager.OnJoinRoomRequested -= JoinRoom;
     }
     private void Start()
     {
         PhotonNetwork.NickName = localClientInfo.nickname;
-        PhotonNetwork.ConnectUsingSettings(); 
+        PhotonNetwork.ConnectUsingSettings();
     }
     private void JoinRoom()
-    { 
+    {
         PhotonNetwork.JoinRandomRoom();
     }
 
     private void CreateRoomAndJoin()
-    { 
+    {
         string roomId = GetRandomRoomName();
         PhotonNetwork.JoinOrCreateRoom(roomId, new RoomOptions { MaxPlayers = 2, IsOpen = true, IsVisible = true }, TypedLobby.Default);
     }
@@ -54,14 +47,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     private string GetRandomRoomName()
     {
         return UnityEngine.Random.Range(0, int.MaxValue).ToString();
-    }
-
-    public void InitializePlayer()
-    {
-        GameObject player = PhotonNetwork.Instantiate("Player", Vector3.zero, Quaternion.identity,0,null);
-        player.GetComponent<PhotonView>().Owner.NickName = PlayerPrefs.GetString("nickname");
-    }
-
+    } 
     public override void OnConnectedToMaster()
     {
         print(PhotonNetwork.NickName + " logged in.");
@@ -75,25 +61,39 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     }
     public override void OnJoinedRoom()
     {
-        print("joinedroom");
-        PhotonNetwork.LoadLevel("2-Room"); 
-    }
+        if(PhotonNetwork.IsMasterClient)
+        { 
+            PhotonNetwork.InstantiateRoomObject("GameManager", Vector3.zero, Quaternion.identity, default, null);
+        } 
+        LevelLoader.LoadNextLevelAsync(); 
+    } 
     public override void OnLeftRoom()
     {
+        print("You left the room.");
     }
     public override void OnLeftLobby()
-    { 
+    {
+        print("You left the lobby.");
     }
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
+        print("Player entered the room.");
+
     }
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
+
+        print("Player left the room.");
     }
     public override void OnJoinRandomFailed(short returnCode, string message)
     {
+        print("Random join failed.");
     }
     public override void OnCreateRoomFailed(short returnCode, string message)
-    { 
+    {
+        print("Creating room failed.");
     }
+
+
+
 }

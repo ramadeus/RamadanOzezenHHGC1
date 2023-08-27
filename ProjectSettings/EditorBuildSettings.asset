@@ -12,6 +12,18 @@ EditorBuildSettings:
     path: Assets/Scenes/1-MainMenu.unity
     guid: 3958931294f488348a26033572022faf
   - enabled: 1
-    path: Assets/Scenes/2-Room.unity
+    path: Assets/Scenes/2-RoomLobby.unity
+    guid: c96fd60de24374d499231208cd3b2019
+  - enabled: 1
+    path: Assets/Scenes/3-CharSelection.unity
+    guid: 301a17ed54bd25e4c979154c6d93d4df
+  - enabled: 1
+    path: Assets/Scenes/4-WaitingSelectionsScene.unity
+    guid: 339aca69cb6c23442a3470d7524632b0
+  - enabled: 1
+    path: Assets/Scenes/5-InGame.unity
     guid: 6663ababbe35c40479a0b60d838c03a3
+  - enabled: 1
+    path: Assets/Scenes/6-Result.unity
+    guid: c7c9deeedb334b14c816da6641c48cd2
   m_configObjects: {}
